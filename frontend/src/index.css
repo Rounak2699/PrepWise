@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Fraunces", "Georgia", serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --color-ink-950: #0f1b30;
+  --color-ink-900: #14213d;
+  --color-ink-800: #1c2c4d;
+  --color-ink-700: #2a3c62;
+  --color-ink-600: #3d5280;
+  --color-ink-500: #5b6f9c;
+  --color-ink-400: #8b9ac0;
+  --color-ink-300: #b8c2dc;
+  --color-ink-200: #dbe1ee;
+  --color-ink-100: #eef1f7;
+
+  --color-paper-50: #fbfaf7;
+  --color-paper-100: #f5f4ef;
+  --color-paper-200: #ece9e0;
+
+  --color-amber-600: #b9832a;
+  --color-amber-500: #d3a03f;
+  --color-amber-400: #e3b661;
+  --color-amber-100: #faf0dc;
+
+  --color-moss-600: #2f6b4f;
+  --color-moss-500: #3f8a67;
+  --color-moss-100: #e2efe7;
+
+  --color-brick-600: #a8402f;
+  --color-brick-500: #c15540;
+  --color-brick-100: #f6e4e0;
+}
+
+html {
+  font-family: var(--font-sans);
+}
+
+body {
+  background-color: var(--color-paper-100);
+  color: var(--color-ink-900);
+}
+
+::selection {
+  background-color: var(--color-amber-400);
+  color: var(--color-ink-950);
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.rise-in {
+  animation: rise-in 0.35s ease-out both;
+}
