@@ -48,6 +48,8 @@ export const api = {
 
   me: () => request('/me'),
   updateMe: (payload) => request('/me', { method: 'PATCH', body: payload }),
+  theme: () => request('/preferences/theme'),
+  updateTheme: (theme) => request('/preferences/theme', { method: 'PATCH', body: { theme } }),
 
   dailyChallenge: () => request('/daily-challenge'),
   startTest: (testId) => request(`/tests/${testId}/start`, { method: 'POST' }),
@@ -60,4 +62,22 @@ export const api = {
   topicProgress: () => request('/progress/topics'),
 
   report: (testId) => request(`/reports/${testId}`),
+
+  currentStudyPlan: () => request('/study-plans/current'),
+  createStudyPlan: (payload) => request('/study-plans', { method: 'POST', body: payload }),
+  updateStudyPlan: (id, payload) => request(`/study-plans/${id}`, { method: 'PATCH', body: payload }),
+  regenerateStudyPlan: (id) => request(`/study-plans/${id}/regenerate`, { method: 'POST' }),
+  completeStudyTask: (id) => request(`/study-plans/tasks/${id}/complete`, { method: 'POST' }),
+
+  dueReviews: () => request('/reviews/due'),
+  reviewStats: () => request('/reviews/stats'),
+  submitReview: (id, payload) => request(`/reviews/${id}/submit`, { method: 'POST', body: payload }),
+
+  companies: (query = '') => request(`/companies?q=${encodeURIComponent(query)}`),
+  company: (slug) => request(`/companies/${encodeURIComponent(slug)}`),
+  companyPacks: (slug) => request(`/companies/${encodeURIComponent(slug)}/packs`),
+  startCompanyPack: (id) => request(`/company-packs/${id}/start`, { method: 'POST' }),
+  answerCompanyPackQuestion: (id, payload) => request(`/company-packs/${id}/answer`, { method: 'POST', body: payload }),
+  companyPackSources: (id) => request(`/company-packs/${id}/sources`),
+  myCompanyPacks: () => request('/company-packs/my'),
 }

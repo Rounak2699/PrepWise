@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .api import auth, challenge, me, progress, reports
+from .api import auth, challenge, me, preparation, progress, reports
 from .core.config import settings
 from .core.db import Base, SessionLocal, engine
 from .seed.seed import seed_questions
@@ -39,6 +39,7 @@ app.include_router(me.router)
 app.include_router(challenge.router)
 app.include_router(progress.router)
 app.include_router(reports.router)
+app.include_router(preparation.router)
 
 
 @app.get("/health")

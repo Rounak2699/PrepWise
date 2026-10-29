@@ -42,6 +42,68 @@ body {
   color: var(--color-ink-900);
 }
 
+html[data-theme="dark"] {
+  --color-paper-50: #111827;
+  --color-paper-100: #0b1220;
+  --color-paper-200: #1f2937;
+  --color-ink-100: #1f2937;
+  --color-ink-200: #374151;
+  --color-ink-300: #64748b;
+  --color-ink-400: #94a3b8;
+  --color-ink-500: #aab6c8;
+  --color-ink-600: #cbd5e1;
+  --color-ink-700: #dbe4ef;
+}
+
+html[data-theme="dark"] body {
+  color: #e5e7eb;
+}
+
+html[data-theme="dark"] .text-ink-900,
+html[data-theme="dark"] .text-ink-800,
+html[data-theme="dark"] .text-ink-700,
+html[data-theme="dark"] .text-ink-600,
+html[data-theme="dark"] .text-paper-50 {
+  color: #e5e7eb;
+}
+
+html[data-theme="dark"] .text-ink-500,
+html[data-theme="dark"] .text-ink-400 {
+  color: #aab6c8;
+}
+
+html[data-theme="dark"] .text-ink-300 {
+  color: #cbd5e1;
+}
+
+html[data-theme="dark"] .border-ink-200 {
+  border-color: #374151;
+}
+
+html[data-theme="dark"] .hover\:bg-ink-100:hover {
+  background-color: #273449;
+}
+
+html[data-theme="dark"] input,
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea {
+  color: #e5e7eb;
+}
+
+html[data-theme="dark"] option {
+  background: #111827;
+  color: #e5e7eb;
+}
+
+button:focus-visible,
+a:focus-visible,
+select:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--color-amber-500);
+  outline-offset: 2px;
+}
+
 ::selection {
   background-color: var(--color-amber-400);
   color: var(--color-ink-950);

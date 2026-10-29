@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AppShell from '../components/AppShell'
 import Button from '../components/Button'
-import { Card, FullPageSpinner, Pill } from '../components/ui'
+import { Card, ErrorNote, FullPageSpinner, Pill } from '../components/ui'
 import { useAuth } from '../context/AuthContext'
 import { api } from '../lib/api'
 
@@ -13,16 +13,29 @@ export default function Dashboard() {
   const [challenge, setChallenge] = useState(null)
   const [progress, setProgress] = useState(null)
   const [history, setHistory] = useState([])
+  const [studyPlan, setStudyPlan] = useState(null)
+  const [reviewsDue, setReviewsDue] = useState([])
+  const [companyPacks, setCompanyPacks] = useState([])
+  const [featureError, setFeatureError] = useState('')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     let cancelled = false
     async function load() {
       const [c, p, h] = await Promise.all([api.dailyChallenge(), api.progress(), api.history(5)])
+      const [plan, reviews, packs] = await Promise.allSettled([
+        api.currentStudyPlan(), api.dueReviews(), api.myCompanyPacks(),
+      ])
       if (cancelled) return
       setChallenge(c)
       setProgress(p)
       setHistory(h)
+      setStudyPlan(plan.status === 'fulfilled' ? plan.value : null)
+      setReviewsDue(reviews.status === 'fulfilled' ? reviews.value : [])
+      setCompanyPacks(packs.status === 'fulfilled' ? packs.value : [])
+      if (plan.status === 'rejected' || reviews.status === 'rejected' || packs.status === 'rejected') {
+        setFeatureError('Some preparation features could not be loaded. Refresh or try again shortly.')
+      }
       setLoading(false)
     }
     load()
@@ -34,13 +47,51 @@ export default function Dashboard() {
   const firstName = user?.name?.split(' ')[0]
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
+  const today = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(new Date().getDate()).padStart(2, '0')}`
 
   return (
     <AppShell streak={progress?.current_streak}>
       <p className="text-sm text-ink-500 mb-1">{greeting}, {firstName}</p>
       <h1 className="font-display text-3xl font-semibold text-ink-900 mb-8">Ready to keep the streak alive?</h1>
+      <ErrorNote>{featureError}</ErrorNote>
 
+      {studyPlan && (
+        <Card className="p-5 mb-4">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="text-xs uppercase tracking-wide text-amber-600">Today's personalized study task</p>
+              <h2 className="font-display text-xl font-semibold text-ink-900">
+                {studyPlan.days.find((day) => day.date === today)?.focus || 'Continue your study plan'}
+              </h2>
+              <p className="text-sm text-ink-500">{studyPlan.daily_minutes} minutes · {studyPlan.target_role}</p>
+            </div>
+            <Button variant="outline" onClick={() => navigate('/study-plan')}>Open plan <ArrowRight size={15} /></Button>
+          </div>
+        </Card>
+      )}
       <ChallengeCard challenge={challenge} onGo={() => navigate('/test')} onReview={() => navigate(`/result/${challenge.test_id}`)} />
+
+      <Card className="p-4 mt-4 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="text-xs uppercase tracking-wide text-amber-600">Reviews due today</p>
+          <p className="text-sm text-ink-800">{reviewsDue.length ? `${reviewsDue.length} concept${reviewsDue.length === 1 ? '' : 's'} ready to review` : 'No reviews due right now'}</p>
+        </div>
+        <Button variant="outline" onClick={() => navigate('/review')}>Review now <ArrowRight size={15} /></Button>
+      </Card>
+      {companyPacks.length > 0 && (
+        <Card className="p-4 mt-4">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-xs uppercase tracking-wide text-amber-600">Company pack progress</p>
+              <p className="text-sm text-ink-800">
+                {companyPacks.filter((pack) => pack.completed_at).length} of {companyPacks.length} packs completed
+              </p>
+              {companyPacks[0] && <p className="text-xs text-ink-500 mt-1">Latest: {companyPacks[0].title} · {companyPacks[0].answered}/{companyPacks[0].total} questions</p>}
+            </div>
+            <Button variant="outline" onClick={() => navigate('/companies')}>Continue <ArrowRight size={15} /></Button>
+          </div>
+        </Card>
+      )}
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
         <StatCard icon={Flame} label="Current streak" value={progress.current_streak} suffix="days" tone="amber" />

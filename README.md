@@ -119,6 +119,36 @@ docker-compose.yml   postgres + backend + frontend(nginx), for a production-like
   configured, a template-based summary is used instead — the test result
   itself is never blocked on it.
 
+## Update set 02 features
+
+- **Study plans:** create 14/30/60/90-day daily plans with a 30/60/90-minute
+  budget, target role, topic selection and daily/weekday scheduling. Topic
+  performance influences ordering; missed tasks can be rebalanced; task
+  completion, pause and plan replacement are persisted. Plans are currently
+  generated deterministically rather than through an AI service.
+- **Spaced repetition:** answered questions from submitted tests are scheduled
+  for review. Review ratings use the specified 1/2/4/8-day intervals, then
+  double repeated Easy intervals up to 90 days. Correct answers are withheld
+  until after a review rating is submitted.
+- **Company practice:** admin-curated company profiles require HTTPS sources
+  and recent source verification before packs can be published. Packs can only
+  reference published question-bank items; company facts are shown separately
+  from practice content. The app does not import interview reports or assert
+  unverified company assessment formats. Admins can manage this catalog through
+  the documented `/docs` API (`/api/admin/companies`, then source and pack
+  endpoints). No company facts or packs are fabricated or pre-seeded.
+- **Themes:** Light, Dark and System modes apply throughout the existing UI,
+  including the test interface and progress chart. Theme choice is stored
+  locally for signed-out use and persisted on the authenticated profile.
+- **Dashboard/navigation:** the dashboard surfaces today's plan task and due
+  reviews, with navigation to plans, reviews and company practice.
+
+The new tables are additive and created by the existing `create_all()` startup
+path. Existing tables and user/test/progress records are not modified; theme
+preferences are stored in the existing user-preference JSON field. For a live
+production database, back it up before deployment and use the project's normal
+database backup procedure. No historical plan or review data is synthesized.
+
 ## Known limitations / suggested next steps
 
 This covers the MVP scope from the PRD (auth, onboarding, daily aptitude +

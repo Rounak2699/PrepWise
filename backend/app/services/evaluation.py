@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 
 from ..core.clock import today_local, utcnow
 from ..models import PerformanceSnapshot, Response, Streak, Test, TopicPerformance
+from .spaced_repetition import create_review_items
 from . import report as report_service
 
 
@@ -79,6 +80,12 @@ def submit_test(db: Session, test: Test, auto: bool = False) -> Test:
         row.last_attempted_at = now
 
     _update_streak(db, test.user_id, test.date)
+    create_review_items(
+        db, test.user_id,
+        [(item.question, bool(responses[item.question_id].is_correct))
+         for item in test.items
+         if responses.get(item.question_id) and responses[item.question_id].selected_answer],
+    )
     db.flush()
     report_service.create_report(db, test)
 

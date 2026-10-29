@@ -28,6 +28,7 @@ export default function Progress() {
 
   const chartData = progress.trend.map((t) => ({ date: t.date.slice(5), pct: t.percentage }))
   const sortedTopics = [...topics].sort((a, b) => a.accuracy - b.accuracy)
+  const darkTheme = document.documentElement.dataset.theme === 'dark'
 
   return (
     <AppShell streak={progress.current_streak}>
@@ -48,11 +49,17 @@ export default function Progress() {
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#ece9e0" vertical={false} />
-                <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#5b6f9c' }} axisLine={false} tickLine={false} />
-                <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: '#5b6f9c' }} axisLine={false} tickLine={false} width={36} />
+                <CartesianGrid strokeDasharray="3 3" stroke={darkTheme ? '#374151' : '#ece9e0'} vertical={false} />
+                <XAxis dataKey="date" tick={{ fontSize: 11, fill: darkTheme ? '#aab6c8' : '#5b6f9c' }} axisLine={false} tickLine={false} />
+                <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: darkTheme ? '#aab6c8' : '#5b6f9c' }} axisLine={false} tickLine={false} width={36} />
                 <Tooltip
-                  contentStyle={{ borderRadius: 12, border: '1px solid #dbe1ee', fontSize: 13 }}
+                  contentStyle={{
+                    borderRadius: 12,
+                    border: `1px solid ${darkTheme ? '#374151' : '#dbe1ee'}`,
+                    backgroundColor: darkTheme ? '#111827' : '#fbfaf7',
+                    color: darkTheme ? '#e5e7eb' : '#14213d',
+                    fontSize: 13,
+                  }}
                   formatter={(v) => [`${v}%`, 'Score']}
                 />
                 <Line type="monotone" dataKey="pct" stroke="#b9832a" strokeWidth={2.5} dot={{ r: 3, fill: '#b9832a' }} />

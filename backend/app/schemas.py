@@ -1,5 +1,6 @@
 from datetime import date, datetime
 from typing import Literal
+from pydantic import AnyHttpUrl
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
@@ -206,3 +207,93 @@ class TopicProgress(BaseModel):
     accuracy: float
     avg_time: float
     last_attempted_at: datetime | None
+
+
+class StudyPlanIn(BaseModel):
+    goal: str = Field(min_length=2, max_length=80)
+    target_role: str = Field(min_length=2, max_length=120)
+    daily_minutes: Literal[30, 60, 90]
+    duration_days: Literal[14, 30, 60, 90]
+    preferred_days: Literal["daily", "weekdays"] = "daily"
+    current_level: Literal["beginner", "intermediate", "advanced"] = "intermediate"
+    target_topics: list[str] = Field(default_factory=list, max_length=30)
+
+    @field_validator("target_topics")
+    @classmethod
+    def _plan_topics(cls, topics: list[str]) -> list[str]:
+        invalid = [topic for topic in topics if topic not in CATEGORIES]
+        if invalid:
+            raise ValueError(f"unknown topics: {invalid}")
+        return list(dict.fromkeys(topics))
+
+
+class StudyPlanUpdate(BaseModel):
+    daily_minutes: Literal[30, 60, 90] | None = None
+    status: Literal["active", "paused"] | None = None
+
+
+class ReviewSubmitIn(BaseModel):
+    result: Literal["again", "hard", "good", "easy"]
+    response_time: int | None = Field(default=None, ge=0, le=3600)
+
+
+class ThemeIn(BaseModel):
+    theme: Literal["light", "dark", "system"]
+
+
+class CompanySearchOut(BaseModel):
+    id: int
+    name: str
+    slug: str
+    website: str | None
+    description: str | None
+    last_verified_at: datetime | None
+
+
+class CompanySourceOut(BaseModel):
+    id: int
+    source_url: AnyHttpUrl
+    source_title: str
+    source_type: str
+    retrieved_at: datetime
+    verified_at: datetime | None
+    notes: str | None
+
+
+class CompanyCreateIn(BaseModel):
+    name: str = Field(min_length=2, max_length=120)
+    slug: str = Field(min_length=2, max_length=140, pattern=r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+    website: AnyHttpUrl | None = None
+    description: str | None = Field(default=None, max_length=2000)
+
+
+class CompanySourceCreateIn(BaseModel):
+    source_url: AnyHttpUrl
+    source_title: str = Field(min_length=3, max_length=250)
+    source_type: Literal["official", "reputable_secondary"]
+    verified: bool = False
+    notes: str | None = Field(default=None, max_length=2000)
+
+
+class CompanyPackItemIn(BaseModel):
+    question_id: int = Field(gt=0)
+    source_id: int | None = Field(default=None, gt=0)
+
+
+class CompanyPackAnswerIn(BaseModel):
+    question_id: int = Field(gt=0)
+    selected_answer: Letter
+
+
+class CompanyPackCreateIn(BaseModel):
+    role: str = Field(min_length=2, max_length=120)
+    title: str = Field(min_length=2, max_length=180)
+    items: list[CompanyPackItemIn] = Field(min_length=1, max_length=100)
+
+    @field_validator("items")
+    @classmethod
+    def _unique_questions(cls, items: list[CompanyPackItemIn]) -> list[CompanyPackItemIn]:
+        question_ids = [item.question_id for item in items]
+        if len(question_ids) != len(set(question_ids)):
+            raise ValueError("A question can only appear once in a pack")
+        return items
